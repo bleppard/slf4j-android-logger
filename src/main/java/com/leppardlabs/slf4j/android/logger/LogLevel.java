@@ -1,4 +1,4 @@
-package de.psdev.slf4j.android.logger;
+package com.leppardlabs.slf4j.android.logger;
 
 import android.util.Log;
 

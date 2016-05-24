@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package de.psdev.slf4j.android.logger;
+package com.leppardlabs.slf4j.android.logger;
 
 public class DetermineCallerException extends RuntimeException {
     private static final long serialVersionUID = -6987929757213786107L;

@@ -36,7 +36,7 @@
  * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.psdev.slf4j.android.logger;
+package com.leppardlabs.slf4j.android.logger;
 
 import android.util.Log;
 import org.slf4j.Marker;

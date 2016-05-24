@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package de.psdev.slf4j.android.logger;
+package com.leppardlabs.slf4j.android.logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;

@@ -38,7 +38,7 @@
  */
 package org.slf4j.impl;
 
-import de.psdev.slf4j.android.logger.AndroidLoggerFactory;
+import com.leppardlabs.slf4j.android.logger.AndroidLoggerFactory;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;

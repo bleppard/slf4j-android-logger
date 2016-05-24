@@ -28,3 +28,4 @@ gen
 tmp
 /build
 /.gradle
+/local.properties
