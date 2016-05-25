@@ -1,4 +1,4 @@
-slf4j-android-logger  [![Build Status](https://ci.psdev.de/job/PSDevSLF4JAndroidLogger/badge/icon)](https://ci.psdev.de/job/PSDevSLF4JAndroidLogger/) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.psdev.slf4j-android-logger/slf4j-android-logger/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.psdev.slf4j-android-logger/slf4j-android-logger)
+slf4j-android-logger
 ==============
 
 This library is based on the official slf4j-android implementation but with some differences.
@@ -12,36 +12,63 @@ Create a `logger.properties` file in the classpath and configure it.
 
 ### Available properties:
 
-**Name:** `de.psdev.slf4j.android.logger.logTag`  
-**Description:** The log tag to use when logging to Androids logger. Maximum 23 chars!
+**Name:** `com.leppardlabs.slf4j.logTag`  
+**Description:** The log tag to use when logging to Android's logger. Maximum 23 chars!
 
-**Name:** `de.psdev.slf4j.android.logger.defaultLogLevel`  
+**Name:** `com.leppardlabs.slf4j.defaultLogLevel`  
 **Values:** `TRACE`|`DEBUG`|`INFO`|`WARN`|`ERROR`
+
+**Name:** `com.leppardlabs.slf4j.logToAndroidLogging`  
+**Description:** Whether or not to log the Android Logging System. Default is true.
+
+**Name:** `com.leppardlabs.slf4j.logToCrashlytics`  
+**Description:** Whether or not to log to Crashlytics. Default is false.
+
+**Name:** `com.leppardlabs.slf4j.logToLogEntries`  
+**Description:** Whether or not to log to LogEntries.com. Default is false.
+
 
 **Example**:
 ```properties
-de.psdev.slf4j.android.logger.logTag=MyAwesomeApp
-de.psdev.slf4j.android.logger.defaultLogLevel=DEBUG
+com.leppardlabs.slf4j.logToAndroidLogging=true
+com.leppardlabs.slf4j.logToCrashlytics=false
+com.leppardlabs.slf4j.logToLogEntries=false
+com.leppardlabs.slf4j.logTag=MyAwesomeApp
+com.leppardlabs.slf4j.defaultLogLevel=DEBUG
 ```
 
-Download
+Gradle
 --------
 
-Download [the latest JAR][1] or grab via Maven:
+Gradle support is provided via [JitPack][3]
 
-```xml
-<dependency>
-  <groupId>de.psdev.slf4j-android-logger</groupId>
-  <artifactId>slf4j-android-logger</artifactId>
-  <version>1.0.5</version>
-</dependency>
+Per the JitPack documentation, first add the JitPack repository to your build file
+
+
+Add it in your root build.gradle at the end of repositories:
+
+```
+allprojects {
+	repositories {
+		...
+		maven { url "https://jitpack.io" }
+	}
+}
+```
+
+Next, add the dependency
+
+```
+dependencies {
+	compile 'com.github.User:Repo:Tag'
+}
 ```
 
 
 Credits
 -------
 
-This library is based upon the official [slf4j-android][2] implementation.
+This library is based upon the official [slf4j-android][2] implementation, and is a branch off of Philip Schiffer's implementation.
 
 
 License
@@ -63,3 +90,4 @@ License
 
 [1]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=de.psdev&a=slf4j-android-logger&v=LATEST
 [2]: https://github.com/qos-ch/slf4j/tree/master/slf4j-android
+[3]: https://jitpack.io/#bleppard/slf4j-android-logger

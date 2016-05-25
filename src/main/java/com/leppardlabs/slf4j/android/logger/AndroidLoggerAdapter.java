@@ -50,6 +50,11 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import com.crashlytics.android.Crashlytics;
+import com.logentries.logger.AndroidLogger;
+
+import static android.util.Log.getStackTraceString;
+
 /**
  * <p>A simple implementation that delegates all log requests to the Google Android
  * logging facilities. Note that this logger does not support {@link Marker}.
@@ -103,12 +108,19 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
     private static LogLevel sLogLevel = LogLevel.INFO;
     private static String sLogTag = "Slf4jAndroidLogger";
 
+	private static boolean sLogToAndroid = true;
+	private static boolean sLogToCrashlytics = false;
+	private static boolean sLogToLogEntries = false;
+
     /**
      * All system properties used by {@code AndroidLogger} start with this prefix
      */
-    public static final String SYSTEM_PREFIX = "de.psdev.slf4j.android.logger.";
+    public static final String SYSTEM_PREFIX = "com.leppardlabs.slf4j.";
     public static final String DEFAULT_LOG_LEVEL_KEY = SYSTEM_PREFIX + "defaultLogLevel";
     public static final String LOG_TAG_KEY = SYSTEM_PREFIX + "logTag";
+	public static final String LOG_TO_ANDROID_KEY = SYSTEM_PREFIX + "logToAndroidLogging";
+	public static final String LOG_TO_CRASHLYTICS_KEY = SYSTEM_PREFIX + "logToCrashlytics";
+	public static final String LOG_TO_LOG_ENTRIES_KEY = SYSTEM_PREFIX + "logToLogEntries";
 
     /**
      * Initialize properties read from properties file
@@ -136,6 +148,10 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
             setLogLevel(stringToLevel(defaultLogLevelString));
         }
         setLogTag(getStringProperty(LOG_TAG_KEY, "Slf4jAndroidLogger"));
+
+		sLogToAndroid = getBooleanProperty(LOG_TO_ANDROID_KEY, sLogToAndroid);
+		sLogToCrashlytics = getBooleanProperty(LOG_TO_CRASHLYTICS_KEY, sLogToCrashlytics);
+		sLogToLogEntries = getBooleanProperty(LOG_TO_LOG_ENTRIES_KEY, sLogToLogEntries);
     }
 
     private final Pattern mClassNamePattern;
@@ -614,46 +630,6 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         }
     }
 
-    private void logAndroidVerbose(final String message, final Throwable throwable) {
-        if (throwable != null) {
-            Log.v(getLogTag(), enhanced(message), throwable);
-        } else {
-            Log.v(getLogTag(), enhanced(message));
-        }
-    }
-
-    private void logAndroidDebug(final String message, final Throwable throwable) {
-        if (throwable != null) {
-            Log.d(getLogTag(), enhanced(message), throwable);
-        } else {
-            Log.d(getLogTag(), enhanced(message));
-        }
-    }
-
-    private void logAndroidInfo(final String message, final Throwable throwable) {
-        if (throwable != null) {
-            Log.i(getLogTag(), enhanced(message), throwable);
-        } else {
-            Log.i(getLogTag(), enhanced(message));
-        }
-    }
-
-    private void logAndroidWarn(final String message, final Throwable throwable) {
-        if (throwable != null) {
-            Log.w(getLogTag(), enhanced(message), throwable);
-        } else {
-            Log.w(getLogTag(), enhanced(message));
-        }
-    }
-
-    private void logAndroidError(final String message, final Throwable throwable) {
-        if (throwable != null) {
-            Log.e(getLogTag(), enhanced(message), throwable);
-        } else {
-            Log.e(getLogTag(), enhanced(message));
-        }
-    }
-
     // Property getter
 
     private static String getStringProperty(final String propertyName) {
@@ -733,5 +709,115 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         }
         // assume INFO by default
         return LogLevel.INFO;
+    }
+
+    private void logRemote(String enhancedMessage, Throwable throwable) {
+		if (sLogToCrashlytics) {
+			Crashlytics.log(enhancedMessage);
+			Crashlytics.logException(throwable);
+		}
+		if (sLogToLogEntries) {
+			logEntriesLog(enhancedMessage + '\n' + getStackTraceString(throwable));
+		}
+    }
+
+    private void logRemote(String enhancedMessage) {
+		if (sLogToCrashlytics) {
+			Crashlytics.log(enhancedMessage);
+		}
+		if (sLogToLogEntries) {
+			logEntriesLog(enhancedMessage);
+		}
+    }
+
+    private void logEntriesLog(String enhancedMessage) {
+        try {
+            final AndroidLogger androidLogger = AndroidLogger.getInstance();
+            if (androidLogger != null) {
+                androidLogger.log(enhancedMessage);
+            }
+        }
+        catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    protected void logAndroidVerbose(final String message, final Throwable throwable) {
+        String enhancedMessage = enhanced(message);
+
+        if (throwable != null) {
+			if (sLogToAndroid) {
+				Log.v(getLogTag(), enhancedMessage, throwable);
+			}
+            logRemote(enhancedMessage, throwable);
+        } else {
+			if (sLogToAndroid) {
+				Log.v(getLogTag(), enhancedMessage);
+			}
+            logRemote(enhancedMessage);
+        }
+    }
+
+    protected void logAndroidDebug(final String message, final Throwable throwable) {
+        String enhancedMessage = enhanced(message);
+
+        if (throwable != null) {
+			if (sLogToAndroid) {
+				Log.d(getLogTag(), enhancedMessage, throwable);
+			}
+            logRemote(enhancedMessage, throwable);
+        } else {
+			if (sLogToAndroid) {
+				Log.d(getLogTag(), enhancedMessage);
+			}
+            logRemote(enhancedMessage);
+        }
+    }
+
+    protected void logAndroidInfo(final String message, final Throwable throwable) {
+        String enhancedMessage = enhanced(message);
+
+        if (throwable != null) {
+			if (sLogToAndroid) {
+				Log.i(getLogTag(), enhancedMessage, throwable);
+			}
+            logRemote(enhancedMessage, throwable);
+        } else {
+			if (sLogToAndroid) {
+				Log.i(getLogTag(), enhancedMessage);
+			}
+            logRemote(enhancedMessage);
+        }
+    }
+
+    protected void logAndroidWarn(final String message, final Throwable throwable) {
+        String enhancedMessage = enhanced(message);
+
+        if (throwable != null) {
+			if (sLogToAndroid) {
+				Log.w(getLogTag(), enhancedMessage, throwable);
+			}
+            logRemote(enhancedMessage, throwable);
+        } else {
+			if (sLogToAndroid) {
+				Log.w(getLogTag(), enhancedMessage);
+			}
+            logRemote(enhancedMessage);
+        }
+    }
+
+    protected void logAndroidError(final String message, final Throwable throwable) {
+        String enhancedMessage = enhanced(message);
+
+        if (throwable != null) {
+			if (sLogToAndroid) {
+				Log.e(getLogTag(), enhancedMessage, throwable);
+			}
+            logRemote(enhancedMessage, throwable);
+        } else {
+			if (sLogToAndroid) {
+				Log.e(getLogTag(), enhancedMessage);
+			}
+            logRemote(enhancedMessage);
+        }
     }
 }
