@@ -38,25 +38,19 @@
  */
 package com.leppardlabs.slf4j.android.logger;
 
-import android.content.res.Resources;
 import android.util.Log;
 import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.crashlytics.android.Crashlytics;
-import com.logentries.logger.AndroidLogger;
 
 import static android.util.Log.getStackTraceString;
-
-import  com.leppardlabs.slf4j.android.logger.R;
 
 /**
  * <p>A simple implementation that delegates all log requests to the Google Android
@@ -107,61 +101,8 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
     private static final String CONFIGURATION_FILE = "logger.properties";
     private static final Properties ANDROID_LOGGER_PROPERTIES = new Properties();
 
-    // Current log level and tag
-    private static LogLevel sLogLevel = LogLevel.INFO;
-    private static String sLogTag = "Slf4jAndroidLogger";
 
-	private static boolean sLogToAndroid = true;
-	private static boolean sLogToCrashlytics = false;
-	private static boolean sLogToLogEntries = false;
-
-    /**
-     * All system properties used by {@code AndroidLogger} start with this prefix
-     */
-    public static final String SYSTEM_PREFIX = "com.leppardlabs.slf4j.";
-    public static final String DEFAULT_LOG_LEVEL_KEY = SYSTEM_PREFIX + "defaultLogLevel";
-    public static final String LOG_TAG_KEY = SYSTEM_PREFIX + "logTag";
-	public static final String LOG_TO_ANDROID_KEY = SYSTEM_PREFIX + "logToAndroidLogging";
-	public static final String LOG_TO_CRASHLYTICS_KEY = SYSTEM_PREFIX + "logToCrashlytics";
-	public static final String LOG_TO_LOG_ENTRIES_KEY = SYSTEM_PREFIX + "logToLogEntries";
-
-    /**
-     * Initialize properties read from properties file
-     */
-    static {
-        InputStream propertiesInputStream = null;
-
-//        final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
-//        if (threadClassLoader != null) {
-//            propertiesInputStream = threadClassLoader.getResourceAsStream(CONFIGURATION_FILE);
-//        } else {
-//            propertiesInputStream = ClassLoader.getSystemResourceAsStream(CONFIGURATION_FILE);
-//        }
-
-		propertiesInputStream = Resources.getSystem().openRawResource(R.raw.logger);
-
-        if (propertiesInputStream != null) {
-            try {
-                ANDROID_LOGGER_PROPERTIES.load(propertiesInputStream);
-                propertiesInputStream.close();
-            } catch (IOException ignored) {
-                // ignored
-            }
-        }
-
-        // Init properties
-        final String defaultLogLevelString = getStringProperty(DEFAULT_LOG_LEVEL_KEY, null);
-        if (defaultLogLevelString != null) {
-            setLogLevel(stringToLevel(defaultLogLevelString));
-        }
-        setLogTag(getStringProperty(LOG_TAG_KEY, "Slf4jAndroidLogger"));
-
-		sLogToAndroid = getBooleanProperty(LOG_TO_ANDROID_KEY, sLogToAndroid);
-		sLogToCrashlytics = getBooleanProperty(LOG_TO_CRASHLYTICS_KEY, sLogToCrashlytics);
-		sLogToLogEntries = getBooleanProperty(LOG_TO_LOG_ENTRIES_KEY, sLogToLogEntries);
-    }
-
-    private final Pattern mClassNamePattern;
+	private final Pattern mClassNamePattern;
 
     /**
      * Package access allows only {@link AndroidLoggerFactory} to instantiate
@@ -172,23 +113,7 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         mClassNamePattern = Pattern.compile(name + "(\\$+.*)?");
     }
 
-    public static LogLevel getLogLevel() {
-        return sLogLevel;
-    }
-
-    public static void setLogLevel(final LogLevel logLevel) {
-        sLogLevel = logLevel;
-    }
-
-    public static String getLogTag() {
-        return sLogTag;
-    }
-
-    public static void setLogTag(final String logTag) {
-        sLogTag = logTag;
-    }
-
-    /**
+	/**
      * Is this logger instance enabled for the VERBOSE level?
      *
      * @return True if this Logger is enabled for level VERBOSE, false otherwise.
@@ -692,7 +617,7 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
      */
     protected static boolean isLevelEnabled(final LogLevel logLevel) {
         // log level are numerically ordered so can use simple numeric comparison
-        return logLevel.getAndroidLogLevel() >= sLogLevel.getAndroidLogLevel();
+        return logLevel.getAndroidLogLevel() >= AndroidLoggerConfig.logLevel.getAndroidLogLevel();
     }
 
     private static LogLevel stringToLevel(final String levelStr) {
@@ -719,27 +644,28 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
     }
 
     private void logRemote(String enhancedMessage, Throwable throwable) {
-		if (sLogToCrashlytics) {
+		if (AndroidLoggerConfig.logToCrashlytics) {
 			Crashlytics.log(enhancedMessage);
 			Crashlytics.logException(throwable);
 		}
-		if (sLogToLogEntries) {
+		if (AndroidLoggerConfig.logToLogEntries) {
 			logEntriesLog(enhancedMessage + '\n' + getStackTraceString(throwable));
 		}
     }
 
     private void logRemote(String enhancedMessage) {
-		if (sLogToCrashlytics) {
+		if (AndroidLoggerConfig.logToCrashlytics) {
 			Crashlytics.log(enhancedMessage);
 		}
-		if (sLogToLogEntries) {
+		if (AndroidLoggerConfig.logToLogEntries) {
 			logEntriesLog(enhancedMessage);
 		}
     }
 
     private void logEntriesLog(String enhancedMessage) {
         try {
-            final AndroidLogger androidLogger = AndroidLogger.getInstance();
+            final com.logentries.logger.AndroidLogger androidLogger =
+					com.logentries.logger.AndroidLogger.getInstance();
             if (androidLogger != null) {
                 androidLogger.log(enhancedMessage);
             }
@@ -752,13 +678,13 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         String enhancedMessage = enhanced(message);
 
         if (throwable != null) {
-			if (sLogToAndroid) {
-				Log.v(getLogTag(), enhancedMessage, throwable);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.v(AndroidLoggerConfig.getLogTag(), enhancedMessage, throwable);
 			}
             logRemote(enhancedMessage, throwable);
         } else {
-			if (sLogToAndroid) {
-				Log.v(getLogTag(), enhancedMessage);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.v(AndroidLoggerConfig.getLogTag(), enhancedMessage);
 			}
             logRemote(enhancedMessage);
         }
@@ -768,13 +694,13 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         String enhancedMessage = enhanced(message);
 
         if (throwable != null) {
-			if (sLogToAndroid) {
-				Log.d(getLogTag(), enhancedMessage, throwable);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.d(AndroidLoggerConfig.getLogTag(), enhancedMessage, throwable);
 			}
             logRemote(enhancedMessage, throwable);
         } else {
-			if (sLogToAndroid) {
-				Log.d(getLogTag(), enhancedMessage);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.d(AndroidLoggerConfig.getLogTag(), enhancedMessage);
 			}
             logRemote(enhancedMessage);
         }
@@ -784,13 +710,13 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         String enhancedMessage = enhanced(message);
 
         if (throwable != null) {
-			if (sLogToAndroid) {
-				Log.i(getLogTag(), enhancedMessage, throwable);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.i(AndroidLoggerConfig.getLogTag(), enhancedMessage, throwable);
 			}
             logRemote(enhancedMessage, throwable);
         } else {
-			if (sLogToAndroid) {
-				Log.i(getLogTag(), enhancedMessage);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.i(AndroidLoggerConfig.getLogTag(), enhancedMessage);
 			}
             logRemote(enhancedMessage);
         }
@@ -800,13 +726,13 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         String enhancedMessage = enhanced(message);
 
         if (throwable != null) {
-			if (sLogToAndroid) {
-				Log.w(getLogTag(), enhancedMessage, throwable);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.w(AndroidLoggerConfig.getLogTag(), enhancedMessage, throwable);
 			}
             logRemote(enhancedMessage, throwable);
         } else {
-			if (sLogToAndroid) {
-				Log.w(getLogTag(), enhancedMessage);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.w(AndroidLoggerConfig.getLogTag(), enhancedMessage);
 			}
             logRemote(enhancedMessage);
         }
@@ -816,13 +742,13 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         String enhancedMessage = enhanced(message);
 
         if (throwable != null) {
-			if (sLogToAndroid) {
-				Log.e(getLogTag(), enhancedMessage, throwable);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.e(AndroidLoggerConfig.getLogTag(), enhancedMessage, throwable);
 			}
             logRemote(enhancedMessage, throwable);
         } else {
-			if (sLogToAndroid) {
-				Log.e(getLogTag(), enhancedMessage);
+			if (AndroidLoggerConfig.logToAndroid) {
+				Log.e(AndroidLoggerConfig.getLogTag(), enhancedMessage);
 			}
             logRemote(enhancedMessage);
         }

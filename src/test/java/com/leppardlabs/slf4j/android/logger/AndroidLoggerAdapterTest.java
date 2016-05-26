@@ -47,9 +47,9 @@ public class AndroidLoggerAdapterTest {
     @Test
     public void testInitialization() throws Exception {
         assertEquals("should have read correct log tag from properties", "TestLogTag",
-            AndroidLoggerAdapter.getLogTag());
+            AndroidLoggerConfig.getLogTag());
         assertEquals("should have correct name", AndroidLoggerAdapterTest.class.getName(), mLogger.getName());
-        assertEquals("should have correct log level", LogLevel.TRACE, AndroidLoggerAdapter.getLogLevel());
+        assertEquals("should have correct log level", LogLevel.TRACE, AndroidLoggerConfig.getLogLevel());
     }
 
     @Test

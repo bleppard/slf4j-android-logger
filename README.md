@@ -8,34 +8,7 @@ Configuration of the log tag is done through a properties file (`logger.properti
 Configuration
 -------------
 
-Create a `logger.properties` file in resources and use the following directives to confgure.
-
-### Available properties:
-
-**Name:** `com.leppardlabs.slf4j.logTag`  
-**Description:** The log tag to use when logging to Android's logger. Maximum 23 chars!
-
-**Name:** `com.leppardlabs.slf4j.defaultLogLevel`  
-**Values:** `TRACE`|`DEBUG`|`INFO`|`WARN`|`ERROR`
-
-**Name:** `com.leppardlabs.slf4j.logToAndroidLogging`  
-**Description:** Whether or not to log the Android Logging System. Default is true.
-
-**Name:** `com.leppardlabs.slf4j.logToCrashlytics`  
-**Description:** Whether or not to log to Crashlytics. Default is false.
-
-**Name:** `com.leppardlabs.slf4j.logToLogEntries`  
-**Description:** Whether or not to log to LogEntries.com. Default is false.
-
-
-**Example**:
-```properties
-com.leppardlabs.slf4j.logToAndroidLogging=true
-com.leppardlabs.slf4j.logToCrashlytics=false
-com.leppardlabs.slf4j.logToLogEntries=false
-com.leppardlabs.slf4j.logTag=MyAwesomeApp
-com.leppardlabs.slf4j.defaultLogLevel=DEBUG
-```
+Call AndroidLoggerConfig.init(...)
 
 Gradle
 --------
