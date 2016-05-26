@@ -1,5 +1,13 @@
-slf4j-android-logger
+slf4j-android-logger [![JitPack](https://jitpack.io/v/bleppard/slf4j-android-logger.svg)](https://jitpack.io/#bleppard/slf4j-android-logger)
 ==============
+
+<!-- 
+Badges for later
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Caffeine-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1055)
+
+[![Codacy](https://api.codacy.com/project/badge/Grade/7051075a25b548699c642b39f666580f)](https://www.codacy.com/app/brent/caffeine?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=percolate/caffeine&amp;utm_campaign=Badge_Grade)
+-->
+
 
 This library is based on the official slf4j-android implementation but with some differences.
 It does not use the classname as the log tag but instead appends it after the message. It also appends the line number and current thread.
