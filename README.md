@@ -8,7 +8,7 @@ Configuration of the log tag is done through a properties file (`logger.properti
 Configuration
 -------------
 
-Create a `logger.properties` file in the classpath and configure it.
+Create a `logger.properties` file in resources and use the following directives to confgure.
 
 ### Available properties:
 
@@ -60,7 +60,7 @@ Next, add the dependency
 
 ```
 dependencies {
-	compile 'com.github.User:Repo:Tag'
+	compile 'com.github.bleppard:slf4j-android-logger:1.1.0'
 }
 ```
 

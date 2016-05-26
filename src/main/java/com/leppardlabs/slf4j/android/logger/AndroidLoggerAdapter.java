@@ -38,6 +38,7 @@
  */
 package com.leppardlabs.slf4j.android.logger;
 
+import android.content.res.Resources;
 import android.util.Log;
 import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
@@ -54,6 +55,8 @@ import com.crashlytics.android.Crashlytics;
 import com.logentries.logger.AndroidLogger;
 
 import static android.util.Log.getStackTraceString;
+
+import  com.leppardlabs.slf4j.android.logger.R;
 
 /**
  * <p>A simple implementation that delegates all log requests to the Google Android
@@ -127,12 +130,16 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
      */
     static {
         InputStream propertiesInputStream = null;
-        final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
-        if (threadClassLoader != null) {
-            propertiesInputStream = threadClassLoader.getResourceAsStream(CONFIGURATION_FILE);
-        } else {
-            propertiesInputStream = ClassLoader.getSystemResourceAsStream(CONFIGURATION_FILE);
-        }
+
+//        final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+//        if (threadClassLoader != null) {
+//            propertiesInputStream = threadClassLoader.getResourceAsStream(CONFIGURATION_FILE);
+//        } else {
+//            propertiesInputStream = ClassLoader.getSystemResourceAsStream(CONFIGURATION_FILE);
+//        }
+
+		propertiesInputStream = Resources.getSystem().openRawResource(R.raw.logger);
+
         if (propertiesInputStream != null) {
             try {
                 ANDROID_LOGGER_PROPERTIES.load(propertiesInputStream);
