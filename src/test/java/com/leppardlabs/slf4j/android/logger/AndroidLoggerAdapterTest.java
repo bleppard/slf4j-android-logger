@@ -40,13 +40,16 @@ public class AndroidLoggerAdapterTest {
 
     @Before
     public void setUp() throws Exception {
+		AndroidLoggerConfig.init(true, LogLevel.TRACE, "TestLogTag", false, false);
+
         mLogger = LoggerFactory.getLogger(AndroidLoggerAdapterTest.class);
         EnhancedShadowLog.stream = System.out;
     }
 
     @Test
     public void testInitialization() throws Exception {
-        assertEquals("should have read correct log tag from properties", "TestLogTag",
+
+		assertEquals("should have read correct log tag from properties", "TestLogTag",
             AndroidLoggerConfig.getLogTag());
         assertEquals("should have correct name", AndroidLoggerAdapterTest.class.getName(), mLogger.getName());
         assertEquals("should have correct log level", LogLevel.TRACE, AndroidLoggerConfig.getLogLevel());

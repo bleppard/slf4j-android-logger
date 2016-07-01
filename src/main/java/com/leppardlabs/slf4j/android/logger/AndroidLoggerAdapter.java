@@ -649,7 +649,7 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
 			Crashlytics.logException(throwable);
 		}
 		if (AndroidLoggerConfig.logToLogEntries) {
-			logEntriesLog(enhancedMessage + '\n' + getStackTraceString(throwable));
+			logEntriesLog(enhancedMessage + '\n' + throwable.getMessage() + '\n' + getStackTraceString(throwable));
 		}
     }
 
