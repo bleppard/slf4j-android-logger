@@ -32,8 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import android.util.Log;
 
+import java.net.UnknownHostException;
+
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, shadows = { EnhancedShadowLog.class })
+@Config(manifest = Config.NONE, shadows = { EnhancedShadowLog.class }, constants = BuildConfig.class)
 public class AndroidLoggerAdapterTest {
 
     private Logger mLogger;
@@ -278,6 +280,19 @@ public class AndroidLoggerAdapterTest {
         assertThat("should contain correct class name", EnhancedShadowLog.getLogs().get(0).msg,
             CoreMatchers.containsString("InnerClassTest"));
     }
+
+    @Test
+    public void testUnknownHostException() {
+        mLogger.error("Show Exception", new UnknownHostException());
+        assertLog(Log.ERROR, "UnknownHostException");
+    }
+
+	@Test
+	public void testUnknownHostExceptionWithMessage() {
+		mLogger.error("Show Exception with message", new UnknownHostException("MyMessage"));
+		assertLog(Log.ERROR, "UnknownHostException");
+		assertLog(Log.ERROR, "MyMessage");
+	}
 
     @After
     public void tearDown() throws Exception {

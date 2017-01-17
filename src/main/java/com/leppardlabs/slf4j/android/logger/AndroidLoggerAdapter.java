@@ -44,6 +44,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -537,8 +538,15 @@ public class AndroidLoggerAdapter extends MarkerIgnoringBase {
         }
     }
 
-    private void log(final LogLevel logLevel, final String message, final Throwable throwable) {
+    private void log(final LogLevel logLevel, String message, final Throwable throwable) {
         if (isLevelEnabled(logLevel)) {
+
+			// There was a change on May 20, 2011, to the Log class, such that UnknownHostException exceptions are not printed
+			// From http://stackoverflow.com/a/28897267/262789
+            if (throwable instanceof UnknownHostException) {
+                message += " - " + throwable.toString();
+            }
+
             switch (logLevel.getAndroidLogLevel()) {
                 case Log.VERBOSE:
                     logAndroidVerbose(message, throwable);
